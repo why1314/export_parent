@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/jms
+        http://www.springframework.org/schema/jms/spring-jms.xsd
+		http://activemq.apache.org/schema/core
+        http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+    <context:component-scan base-package="com.itheima"/>
+
+    <amq:connectionFactory id="amqConnectionFactory" brokerURL="tcp://localhost:61616" userName="admin"
+                           password="admin"/>
+
+    <!--配置spring支持会话缓存的连接工厂-->
+    <bean name="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+        <!--注入提供商的连接工厂-->
+        <property name="targetConnectionFactory" ref="amqConnectionFactory"/>
+        <!--设置session的缓存大小-->
+        <property name="sessionCacheSize" value="100"/>
+    </bean>
+
+
+    <!--配置生产消费模型的监听器-->
+    <jms:listener-container destination-type="queue">
+        <jms:listener destination="export_queue" ref="emailListener"/>
+    </jms:listener-container>
+
+    <!--配置发布订阅模型的监听器-->
+    <!--<jms:listener-container destination-t  ype="topic">-->
+        <!--<jms:listener destination="spring_topic" ref="topicListener"/>-->
+    <!--</jms:listener-container>-->
+
+
+</beans>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <!--配置springMVC创建时要扫描的包-->
+    <context:component-scan base-package="com.itheima.web"></context:component-scan>
+
+    <!--视图解析器-->
+    <bean name="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+    <!--配置类型转换器-->
+    <bean name="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <bean class="com.itheima.web.converters.StringToDateConverter">
+                <property name="pattern" value="yyyy-MM-dd"></property>
+            </bean>
+        </property>
+    </bean>
+
+    <!--开启支持springMVC的注解-->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+
+    <!--配置dubbo-->
+    <!--指定当前项目注册到dubbo中的服务名称-->
+    <dubbo:application name="export_manager_web"></dubbo:application>
+
+    <!--配置zookeeper的地址-->
+    <dubbo:registry address="zookeeper://127.0.0.1:2181"></dubbo:registry>
+
+    <!--配置扫描dubbo注解的包-->
+    <dubbo:annotation package="com.itheima.web.controller"></dubbo:annotation>
+
+    <!--合理化检查-->
+    <dubbo:consumer check="false"></dubbo:consumer>
+
+
+    <!--文件上传解析器-->
+    <bean name="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"></property>
+        <property name="defaultEncoding" value="UTF-8"></property>
+    </bean>
+
+</beans>

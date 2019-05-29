@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--配置创建容器时要扫描的包-->
+    <context:component-scan base-package="com.itheima">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <!--解决定时任务调度执行两次的方案，
+       在这里不再扫描相应的注解，springMVC.xml中扫描
+       -->
+        <context:exclude-filter type="annotation" expression="org.springframework.context.annotation.Configuration"/>
+    </context:component-scan>
+
+    <!--引入外部配置文件-->
+    <context:property-placeholder location="classpath:spring/druid.properties"></context:property-placeholder>
+
+    <!--配置数据源-->
+    <bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="${jdbc.initialSize}"/>
+        <property name="maxActive" value="${jdbc.maxActive}"/>
+        <property name="maxWait" value="${jdbc.maxWait}"/>
+        <property name="minIdle" value="${jdbc.minIdle}"/>
+    </bean>
+
+    <!--配置sqlsessionfactory-->
+    <bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="typeAliasesPackage" value="com.itheima.entity"></property>
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="plugins">
+            <!--配置分页查询拦截器插件-->
+            <bean name="pageInterceptor" class="com.github.pagehelper.PageInterceptor">
+                <property name="properties">
+                    <props>
+                        <!--方言-->
+                        <prop key="helperDialect">mysql</prop>
+                        <!---->
+                        <prop key="reasonable">false</prop>
+                    </props>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <!--配置创建基于mapper接口的代理实现类-->
+    <bean name="mapperScanner" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.itheima.mapper"></property>
+    </bean>
+
+</beans>

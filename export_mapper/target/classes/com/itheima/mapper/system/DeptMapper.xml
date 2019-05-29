@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.mapper.system.DeptMapper">
+
+    <!--建立实体类与数据库表的映射关系-->
+    <resultMap id="baseResultMap" type="dept">
+        <id property="id" column="dept_id"></id>
+        <result property="deptName" column="dept_name"></result>
+        <result property="state" column="state"></result>
+        <result property="companyId" column="company_id"></result>
+        <result property="companyName" column="company_name"></result>
+        <!--mybatis中的一对一配置-->
+        <association property="parent" column="parent_id"
+                     select="com.itheima.mapper.system.DeptMapper.findById"></association>
+    </resultMap>
+
+    <!--查询所有-->
+    <select id="findAll" parameterType="string" resultMap="baseResultMap">
+        SELECT * FROM pe_Dept WHERE company_id=#{companyId}
+    </select>
+
+    <!--查询一个-->
+    <select id="findById" parameterType="string" resultMap="baseResultMap">
+        SELECT * FROM pe_Dept WHERE dept_id=#{deptId}
+    </select>
+
+    <!--添加-->
+    <insert id="save" parameterType="dept">
+        INSERT INTO pe_Dept(dept_id,dept_name,parent_id,state,company_id,company_name)
+        VALUES (#{id},#{deptName},#{parent.id},#{state},#{companyId},#{companyName})
+    </insert>
+
+    <!--更新-->
+    <update id="update" parameterType="dept">
+        UPDATE pe_Dept SET
+        dept_name=#{deptName},
+        parent_id=#{parent.id},
+        state=#{state},
+        company_id=#{companyId},
+        company_name=#{companyName}
+        WHERE dept_id=#{id}
+    </update>
+
+    <delete id="delete" parameterType="string">
+        DELETE FROM pe_Dept WHERE dept_id=#{deptId}
+    </delete>
+
+</mapper>

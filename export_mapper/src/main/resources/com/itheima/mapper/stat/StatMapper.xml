@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.mapper.stat.StatMapper">
+
+    <select id="findFactoryData" parameterType="string" resultType="map">
+        SELECT factory_name name,SUM(amount) value
+        FROM co_contract_product
+        WHERE company_id =#{companyId}
+        GROUP BY factory_name
+    </select>
+
+    <select id="findSellData" parameterType="string" resultType="map">
+        SELECT product_no name,SUM(cnumber) value
+        FROM co_contract_product
+        WHERE company_id =#{companyId}
+        GROUP BY product_no
+        ORDER BY  VALUE DESC
+        LIMIT 0,15
+    </select>
+
+    <select id="findOnlineData" parameterType="string" resultType="map">
+        SELECT a.a1 name,IFNULL(b.value,0) value
+        FROM st_online_info a
+        LEFT JOIN(
+            SELECT DATE_FORMAT(TIME,'%H') name,COUNT(*) value
+            FROM st_sys_log
+            WHERE company_id =#{companyId}
+            GROUP BY  DATE_FORMAT(TIME,'%H')
+        )b
+        ON a.a1=b.name
+    </select>
+
+</mapper>
